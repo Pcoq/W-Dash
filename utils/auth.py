@@ -1,5 +1,4 @@
 import os
-import bcrypt
 import streamlit as st
 
 def check_password():

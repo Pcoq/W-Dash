@@ -13,9 +13,6 @@ plotly==5.24.1
 # Excel export
 XlsxWriter==3.2.0
 
-# Authentication
-bcrypt==4.0.1
-
 # Date handling
 pytz==2024.1
 python-dateutil==2.8.2
