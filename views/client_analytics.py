@@ -210,13 +210,51 @@ def render_client_analytics(orders_df, client_turnover_df=None):
         total_parts_cost = client_df['total_parts_cost'].sum()
         total_cost = total_labour_cost + total_parts_cost
         
-        col1, col2, col3 = st.columns(3)  # Maak 3 kolommen aan
+        col1, col2, col3 = st.columns(3)
         with col1:
             st.metric("Totale Kosten", f"€{total_cost:.2f}")
         with col2:
             st.metric("Totale Arbeidskosten", f"€{total_labour_cost:.2f}")
         with col3:
             st.metric("Totale Onderdelen Kosten", f"€{total_parts_cost:.2f}")
+            
+        # Laatste orders overzicht
+        st.write("#### Laatste Orders")
+        latest_orders = client_df.sort_values('defect_date', ascending=False)[
+            ['defect_date', 'number', 'machine_model', 'machine_vin', 'category', 'id']
+        ].head(10)  # Toon laatste 10 orders
+        
+        # Format de datum kolom
+        latest_orders['defect_date'] = latest_orders['defect_date'].dt.strftime('%Y-%m-%d')
+        
+        # Voeg link kolom toe
+        latest_orders['Link'] = latest_orders['id'].apply(lambda x: f"https://wpm.westtrac-portal.be/orders/{x}")
+        
+        # Hernoem kolommen voor weergave
+        latest_orders = latest_orders.rename(columns={
+            'defect_date': 'Datum',
+            'number': 'Order Nr',
+            'machine_model': 'Machine',
+            'machine_vin': 'VIN',
+            'category': 'Categorie'
+        })
+        
+        # Verwijder de id kolom
+        latest_orders = latest_orders.drop(columns=['id'])
+        
+        st.dataframe(
+            latest_orders,
+            column_config={
+                "Datum": st.column_config.TextColumn("Datum", width=100),
+                "Order Nr": st.column_config.TextColumn("Order Nr", width=100),
+                "Machine": st.column_config.TextColumn("Machine", width=200),
+                "VIN": st.column_config.TextColumn("VIN", width=200),
+                "Categorie": st.column_config.TextColumn("Categorie", width=150),
+                "Link": st.column_config.LinkColumn("Link", display_text="Open Order", width=100, help="Klik om de order te bekijken in WPM"),
+            },
+            hide_index=True,
+            use_container_width=True
+        )
     
     # Verdelen op servicecategorie
     st.subheader("Verdeling op Service Categorie")
