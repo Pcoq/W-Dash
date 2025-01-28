@@ -5,6 +5,7 @@ from pathlib import Path
 import psycopg2
 from psycopg2.pool import SimpleConnectionPool
 from contextlib import contextmanager
+from utils.env_loader import load_env_var
 
 # Globale connection pool
 _pool = None
@@ -16,11 +17,11 @@ def get_connection_pool(min_conn=1, max_conn=10):
         _pool = SimpleConnectionPool(
             min_conn,
             max_conn,
-            host=os.environ['DB_HOST'],
-            port=os.environ['DB_PORT'],
-            database=os.environ['DB_NAME'],
-            user=os.environ['DB_USER'],
-            password=os.environ['DB_PASSWORD']
+            host=load_env_var('DB_HOST'),
+            port=load_env_var('DB_PORT'),
+            database=load_env_var('DB_NAME'),
+            user=load_env_var('DB_USER'),
+            password=load_env_var('DB_PASSWORD')
         )
     return _pool
 

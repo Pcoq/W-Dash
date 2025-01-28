@@ -10,7 +10,7 @@ def render_worker_analytics(worker_labours_df, orders_df):
     
     # Convert dates to datetime
     orders_df['created_at'] = pd.to_datetime(orders_df['created_at'])
-    worker_labours_df['created_at'] = pd.to_datetime(orders_df['created_at'])
+    worker_labours_df['created_at'] = pd.to_datetime(worker_labours_df['created_at'])
     
     # Date range filter
     col1, col2 = st.columns(2)
@@ -40,7 +40,7 @@ def render_worker_analytics(worker_labours_df, orders_df):
     productivity = process_worker_productivity(filtered_labours)
     
     # Worker filters
-    workers = productivity['worker_name'].unique()
+    workers = sorted(productivity['worker_name'].unique())
     selected_workers = st.multiselect("Selecteer Medewerkers", workers)
     
     if selected_workers:
@@ -82,14 +82,15 @@ def render_worker_analytics(worker_labours_df, orders_df):
         st.subheader("Medewerker Details")
         for worker in selected_workers:
             worker_df = filtered_labours[filtered_labours['worker_name'] == worker]
-            st.write(f"### {worker}")
-            
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Totaal Taken", len(worker_df))
-            with col2:
-                st.metric("Gemiddeld Uurtarief", 
-                         f"€{worker_df['price_per_hour'].mean():.2f}")
-            with col3:
-                st.metric("Unieke Orders", 
-                         len(worker_df['order_number'].unique()))
+            if not worker_df.empty:
+                st.write(f"### {worker}")
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Totaal Taken", len(worker_df))
+                with col2:
+                    st.metric("Gemiddeld Uurtarief", 
+                             f"€{worker_df['price_per_hour'].mean():.2f}")
+                with col3:
+                    st.metric("Unieke Orders", 
+                             len(worker_df['order_number'].unique()))

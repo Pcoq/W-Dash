@@ -17,5 +17,8 @@ XlsxWriter==3.2.0
 pytz==2024.1
 python-dateutil==2.8.2
 
+# Authentication
+bcrypt==4.0.1
+
 # Optional
 supabase>=2.3.1
