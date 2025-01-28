@@ -16,7 +16,8 @@ supabase: Client = create_client(
 ROLE_PERMISSIONS = {
     'admin': ['Klanten', 'Parts', 'Machines', 'Medewerkers', 'Financieel', 'Boekhouding Record Export', 'KPI Dashboard', 'Export Tool', 'Gebruikersbeheer'],
     'warehouse': ['Parts'],
-    'user': ['Klanten', 'Parts', 'Machines', 'Medewerkers', 'Financieel']
+    'user': ['Klanten', 'Parts', 'Machines', 'Medewerkers', 'Financieel'],
+    'boekhouding': ['Boekhouding Record Export']
 }
 
 def hash_password(password: str) -> str:
