@@ -15,18 +15,18 @@ def render_accounting_export(orders_df):
     # Filter data op geselecteerd jaar
     filtered_df = orders_df[orders_df['defect_date'].dt.year == selected_year]
     
-    # Toon aantal records
-    st.write(f"Aantal records voor {selected_year}: {len(filtered_df):,}")
+    # Selecteer alleen de gewenste kolommen
+    export_columns = ['defect_date', 'number', 'client_name', 'machine_vin', 'invoice_number']
+    export_df = filtered_df[export_columns]
     
-    # Export knop
-    col1, col2 = st.columns([3, 1])
-    with col2:
-        if st.button("⬇️ Exporteer Records"):
-            from utils.excel_utils import to_excel
-            excel_data = to_excel(filtered_df)
-            st.download_button(
-                label="📥 Download Excel bestand",
-                data=excel_data,
-                file_name=f"boekhouding_export_{selected_year}.xlsx",
-                mime="application/vnd.ms-excel"
-            )
+    # Toon aantal records
+    st.write(f"Aantal records voor {selected_year}: {len(export_df):,}")
+    
+    if st.button("Export naar Excel"):
+        excel_data = to_excel(export_df)
+        st.download_button(
+            label="Export naar Excel",
+            data=excel_data,
+            file_name=f'export_boekhouding_{pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")}.xlsx',
+            mime='application/vnd.ms-excel'
+        )
