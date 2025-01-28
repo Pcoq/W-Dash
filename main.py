@@ -27,7 +27,7 @@ if not check_password():
     st.stop()
 
 # Sidebar navigation
-st.sidebar.markdown('<p class="westtrac-title">Westtrac</p>', unsafe_allow_html=True)
+st.sidebar.markdown('<p class="westtrac-title">Westtrac IQ</p>', unsafe_allow_html=True)
 st.sidebar.markdown("### Menu")
 
 # Initialize states
