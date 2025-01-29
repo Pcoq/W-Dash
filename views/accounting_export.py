@@ -7,7 +7,7 @@ import calendar
 
 def get_previous_month_range():
     """Helper functie om start en eind datum van vorige maand te krijgen"""
-    today = date.today()
+    today = datetime.now().date()
     first_of_month = date(today.year, today.month, 1)
     last_month = first_of_month - timedelta(days=1)
     first_of_last_month = date(last_month.year, last_month.month, 1)
