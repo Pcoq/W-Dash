@@ -56,8 +56,7 @@ def load_orders_data():
     m.brand as machine_brand,
     m.vin as machine_vin,
     SUM(oc.unit_price * oc.amount) as total_parts_cost,
-    SUM(st.hours * wl.price_per_hour + st.minutes / 60.0 * wl.price_per_hour) as total_labour_cost,
-    COALESCE(i.number, '') as invoice_number
+    SUM(st.hours * wl.price_per_hour + st.minutes / 60.0 * wl.price_per_hour) as total_labour_cost
     FROM orders o
     LEFT JOIN clients c ON o.client_id = c.id
     LEFT JOIN machines m ON o.machine_id = m.id
