@@ -55,6 +55,7 @@ def load_orders_data():
     m.model as machine_model,
     m.brand as machine_brand,
     m.vin as machine_vin,
+    COALESCE(i.number, '') as invoice_number_from_invoice,
     SUM(oc.unit_price * oc.amount) as total_parts_cost,
     SUM(st.hours * wl.price_per_hour + st.minutes / 60.0 * wl.price_per_hour) as total_labour_cost
     FROM orders o

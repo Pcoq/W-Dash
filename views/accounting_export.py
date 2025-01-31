@@ -46,11 +46,11 @@ def render_accounting_export(orders_df):
     filtered_df = orders_df[mask]
     
     # Selecteer alleen de gewenste kolommen
-    export_columns = ['defect_date', 'number', 'client_name', 'machine_vin', 'invoice_number']
+    export_columns = ['defect_date', 'number', 'client_name', 'machine_vin', 'category', 'invoice_number_from_invoice']
     export_df = filtered_df[export_columns].copy()
     
-    # Format de datum kolom voor weergave
-    export_df['defect_date'] = export_df['defect_date'].dt.strftime('%Y-%m-%d')
+    # Format de datum kolom voor weergave en export
+    export_df['defect_date'] = export_df['defect_date'].dt.date
     
     # Hernoem kolommen voor weergave
     export_df = export_df.rename(columns={
@@ -58,7 +58,8 @@ def render_accounting_export(orders_df):
         'number': 'Order Nr',
         'client_name': 'Klant',
         'machine_vin': 'Machine VIN',
-        'invoice_number': 'Factuur Nr'
+        'category': 'Categorie',
+        'invoice_number_from_invoice': 'Factuur Nr'
     })
     
     # Toon aantal records
@@ -71,10 +72,11 @@ def render_accounting_export(orders_df):
     st.dataframe(
         export_df,
         column_config={
-            "Datum": st.column_config.TextColumn("Datum", width=100),
+            "Datum": st.column_config.DateColumn("Datum", format="DD-MM-YYYY", width=100),
             "Order Nr": st.column_config.TextColumn("Order Nr", width=100),
             "Klant": st.column_config.TextColumn("Klant", width=200),
             "Machine VIN": st.column_config.TextColumn("Machine VIN", width=150),
+            "Categorie": st.column_config.TextColumn("Categorie", width=150),
             "Factuur Nr": st.column_config.TextColumn("Factuur Nr", width=100)
         },
         hide_index=True,
