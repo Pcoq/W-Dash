@@ -72,12 +72,33 @@ def render_export_tool():
             ["Alle"] + list(categories)
         )
         
-        # Status filter
-        statuses = sorted([status for status in df['status'].unique() if pd.notna(status)])
-        selected_status = st.selectbox(
+        # Status mapping
+        status_mapping = {
+            "fase1": "In progress at workplace",
+            "fase10": "Archived internal",
+            "fase11": "Archived sales",
+            "fase12": "Send to workplace",
+            "fase2": "In control by WPManager",
+            "fase3": "Unknown",  # Geen beschrijving gegeven
+            "fase32": "Send back to workplace",
+            "fase4": "In progress at invoice",
+            "fase5": "Invoiced",
+            "fase6": "Invoiced",
+            "fase7": "Warranty to progress",
+            "fase8": "Processed warranty",
+            "fase9": "Unprocessable warranty / Loss"
+        }
+        
+        # Status filter met beschrijvingen
+        status_descriptions = sorted([status_mapping.get(status, status) 
+                                   for status in df['status'].unique() if pd.notna(status)])
+        selected_status_description = st.selectbox(
             "Status",
-            ["Alle"] + list(statuses)
+            ["Alle"] + list(status_descriptions)
         )
+        # Zet beschrijving terug naar fase-code voor filtering
+        selected_status = next((fase for fase, desc in status_mapping.items() 
+                              if desc == selected_status_description), "Alle")
     
     # Pas filters toe
     filtered_df = df.copy()
@@ -100,6 +121,10 @@ def render_export_tool():
         
     if selected_status != "Alle":
         filtered_df = filtered_df[filtered_df['status'] == selected_status]
+    
+    # Voor weergave, vervang status codes door beschrijvingen
+    if 'status' in filtered_df.columns:
+        filtered_df['status'] = filtered_df['status'].map(status_mapping)
     
     # Definieer toegestane attributen per type
     parts_attributes = {

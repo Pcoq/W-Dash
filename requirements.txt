@@ -13,6 +13,7 @@ plotly==5.24.1
 # Excel export
 XlsxWriter==3.2.0
 openpyxl==3.1.2
+python-docx==1.1.0
 
 # Authentication
 bcrypt==4.0.1

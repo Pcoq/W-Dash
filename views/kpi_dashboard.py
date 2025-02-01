@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
-from utils.database import load_orders_data, load_worker_labours, load_parts_data
+from utils.database import load_orders_data, load_worker_labours_data, load_parts_data
 from utils.excel_utils import to_excel
 
 def render_kpi_dashboard():
     st.header("KPI Dashboard")
 
     # Load data
-    orders_df, worker_labours_df, parts_df = load_orders_data(), load_worker_labours(), load_parts_data()
+    orders_df, worker_labours_df, parts_df = load_orders_data(), load_worker_labours_data(), load_parts_data()
 
     # Convert dates to datetime
     orders_df['created_at'] = pd.to_datetime(orders_df['created_at'])
