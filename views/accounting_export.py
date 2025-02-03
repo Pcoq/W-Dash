@@ -45,12 +45,15 @@ def render_accounting_export(orders_df):
     mask = (orders_df['defect_date'].dt.date >= start_date) & (orders_df['defect_date'].dt.date <= end_date)
     filtered_df = orders_df[mask]
     
-    # Selecteer alleen de gewenste kolommen
+    # Selecteer alleen de gewenste kolommen en sorteer op datum (aflopend)
     export_columns = ['defect_date', 'number', 'client_name', 'machine_vin', 'machine_brand', 'category', 'invoice_number_from_invoice']
     export_df = filtered_df[export_columns].copy()
     
     # Format de datum kolom voor weergave en export
     export_df['defect_date'] = export_df['defect_date'].dt.date
+    
+    # Sorteer op datum (aflopend)
+    export_df = export_df.sort_values('defect_date', ascending=False)
     
     # Hernoem kolommen voor weergave
     export_df = export_df.rename(columns={
