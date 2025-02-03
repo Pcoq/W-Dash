@@ -46,7 +46,7 @@ def render_accounting_export(orders_df):
     filtered_df = orders_df[mask]
     
     # Selecteer alleen de gewenste kolommen
-    export_columns = ['defect_date', 'number', 'client_name', 'machine_vin', 'category', 'invoice_number_from_invoice']
+    export_columns = ['defect_date', 'number', 'client_name', 'machine_vin', 'machine_brand', 'category', 'invoice_number_from_invoice']
     export_df = filtered_df[export_columns].copy()
     
     # Format de datum kolom voor weergave en export
@@ -58,6 +58,7 @@ def render_accounting_export(orders_df):
         'number': 'Order Nr',
         'client_name': 'Klant',
         'machine_vin': 'Machine VIN',
+        'machine_brand': 'Machine Merk',
         'category': 'Categorie',
         'invoice_number_from_invoice': 'Factuur Nr'
     })
@@ -76,6 +77,7 @@ def render_accounting_export(orders_df):
             "Order Nr": st.column_config.TextColumn("Order Nr", width=100),
             "Klant": st.column_config.TextColumn("Klant", width=200),
             "Machine VIN": st.column_config.TextColumn("Machine VIN", width=150),
+            "Machine Merk": st.column_config.TextColumn("Machine Merk", width=150),
             "Categorie": st.column_config.TextColumn("Categorie", width=150),
             "Factuur Nr": st.column_config.TextColumn("Factuur Nr", width=100)
         },
