@@ -2,6 +2,9 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 from utils.excel_utils import to_excel
+from datetime import datetime
+from typing import Dict, List
+from analytics.seasonal_patterns import SeasonalPatternAnalyzer
 
 def apply_filters(df, year, customers, categories, zero_invoice_filter):
     """Helper functie om filters toe te passen"""
@@ -48,7 +51,7 @@ def render_parts_analysis(parts_df, used_parts_df):
         # Nulfacturen includeren filter
         zero_invoice_filter = st.selectbox("Nulfacturen Includeren", options=["Ja", "Nee"], index=0)
     
-    # Tabs voor de verschillende analyses
+    # Verander de tabs definitie naar 2 tabs
     tab1, tab2 = st.tabs(["Algemene Analyse", "Onderdeel Zoeken"])
     
     # Pas filters toe
@@ -265,3 +268,117 @@ def render_parts_analysis(parts_df, used_parts_df):
                 
             else:
                 st.warning(f"Geen onderdelen gevonden met nummer: {search_query} voor de geselecteerde filters")
+
+class PartsAnalysisView:
+    def __init__(self):
+        self.seasonal_analyzer = SeasonalPatternAnalyzer()
+        
+    def analyze_seasonal_patterns(self, parts_df: pd.DataFrame, start_date: datetime, end_date: datetime = None) -> Dict:
+        """
+        Voer een complete seizoensanalyse uit voor alle onderdelen
+        """
+        # Gebruik de bestaande parts_df in plaats van nieuwe data op te halen
+        usage_data = self.prepare_usage_data(parts_df, start_date, end_date)
+        
+        # Voer analyse uit op alle niveaus
+        analysis_results = self.seasonal_analyzer.analyze_patterns_all_levels(usage_data)
+        
+        return self.format_analysis_results(analysis_results)
+    
+    def prepare_usage_data(self, parts_df: pd.DataFrame, start_date: datetime, end_date: datetime) -> pd.DataFrame:
+        """
+        Bereid de data voor uit het bestaande DataFrame
+        """
+        # Maak een kopie om SettingWithCopyWarning te voorkomen
+        usage_data = parts_df.copy()
+        
+        # Filter op datum
+        mask = (usage_data['defect_date'] >= pd.Timestamp(start_date))
+        if end_date:
+            mask &= (usage_data['defect_date'] <= pd.Timestamp(end_date))
+        
+        usage_data = usage_data[mask]
+        
+        # Hernoem kolommen naar verwacht formaat
+        usage_data = usage_data.rename(columns={
+            'part_number': 'onderdeel_id',
+            'category': 'categorie',
+            'defect_date': 'datum',
+            'part_quantity': 'aantal'
+        })
+        
+        return usage_data[['onderdeel_id', 'categorie', 'datum', 'aantal']]
+    
+    def get_part_recommendations(self, part_id: str) -> Dict:
+        """
+        Haal seizoensaanbevelingen op voor specifiek onderdeel
+        """
+        return self.seasonal_analyzer.get_multi_level_recommendations(part_id)
+    
+    def format_analysis_results(self, analysis_results: Dict) -> Dict:
+        """
+        Format de analyseresultaten voor weergave
+        """
+        formatted_results = {
+            'onderdeel_niveau': {
+                'aantal_onderdelen': len(analysis_results['part_level']),
+                'details': self.format_level_results(analysis_results['part_level'])
+            },
+            'categorie_niveau': {
+                'aantal_categorien': len(analysis_results['category_level']),
+                'details': self.format_level_results(analysis_results['category_level'])
+            },
+            'globaal_niveau': {
+                'details': analysis_results['global_level'].get('GLOBAL', {})
+            }
+        }
+        
+        return formatted_results
+    
+    def format_level_results(self, level_data: Dict) -> Dict:
+        """
+        Format resultaten per niveau
+        """
+        formatted = {}
+        for key, data in level_data.items():
+            formatted[key] = {
+                'pieken': [self.format_month(m) for m in data['piek_maanden']],
+                'dalen': [self.format_month(m) for m in data['dal_maanden']],
+                'seizoens_index': data['seizoens_index']
+            }
+        return formatted
+    
+    def format_month(self, month: int) -> str:
+        """
+        Format maandnummer naar Nederlandse maandnaam
+        """
+        months = {
+            1: 'januari', 2: 'februari', 3: 'maart', 
+            4: 'april', 5: 'mei', 6: 'juni',
+            7: 'juli', 8: 'augustus', 9: 'september', 
+            10: 'oktober', 11: 'november', 12: 'december'
+        }
+        return months.get(month, str(month))
+    
+    def get_seasonal_dashboard_data(self) -> Dict:
+        """
+        Verzamel data voor het seizoenspatronen dashboard
+        """
+        current_date = datetime.now()
+        year_ago = current_date.replace(year=current_date.year - 1)
+        
+        # Haal data op voor laatste jaar
+        analysis_results = self.analyze_seasonal_patterns(parts_df, year_ago)
+        
+        # Verzamel dashboard statistieken
+        dashboard_data = {
+            'algemene_statistieken': {
+                'aantal_onderdelen_geanalyseerd': len(analysis_results['onderdeel_niveau']['details']),
+                'aantal_categorien': len(analysis_results['categorie_niveau']['details'])
+            },
+            'huidige_seizoenstrends': self.get_current_season_trends(analysis_results),
+            'aankomende_pieken': self.get_upcoming_peaks(analysis_results),
+            'voorraadadviezen': self.generate_stock_recommendations(analysis_results)
+        }
+        
+        return dashboard_data

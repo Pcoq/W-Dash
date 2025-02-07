@@ -46,7 +46,11 @@ def render_accounting_export(orders_df):
     filtered_df = orders_df[mask]
     
     # Selecteer alleen de gewenste kolommen en sorteer op datum (aflopend)
-    export_columns = ['defect_date', 'number', 'client_name', 'machine_vin', 'machine_brand', 'category', 'invoice_number_from_invoice']
+    export_columns = [
+        'defect_date', 'number', 'client_name', 'machine_vin', 
+        'machine_brand', 'machine_model',  # Machine model toegevoegd
+        'category', 'invoice_number_from_invoice'
+    ]
     export_df = filtered_df[export_columns].copy()
     
     # Format de datum kolom voor weergave en export
@@ -62,6 +66,7 @@ def render_accounting_export(orders_df):
         'client_name': 'Klant',
         'machine_vin': 'Machine VIN',
         'machine_brand': 'Machine Merk',
+        'machine_model': 'Machine Model',  # Machine model toegevoegd
         'category': 'Categorie',
         'invoice_number_from_invoice': 'Factuur Nr'
     })
@@ -72,7 +77,7 @@ def render_accounting_export(orders_df):
     # Preview van de data
     st.subheader("Preview Export")
     
-    # Toon de scrollbare tabel
+    # Toon de scrollbare tabel met aangepaste kolom configuratie
     st.dataframe(
         export_df,
         column_config={
@@ -81,12 +86,13 @@ def render_accounting_export(orders_df):
             "Klant": st.column_config.TextColumn("Klant", width=200),
             "Machine VIN": st.column_config.TextColumn("Machine VIN", width=150),
             "Machine Merk": st.column_config.TextColumn("Machine Merk", width=150),
+            "Machine Model": st.column_config.TextColumn("Machine Model", width=150),  # Machine model toegevoegd
             "Categorie": st.column_config.TextColumn("Categorie", width=150),
             "Factuur Nr": st.column_config.TextColumn("Factuur Nr", width=100)
         },
         hide_index=True,
         use_container_width=True,
-        height=400  # Vaste hoogte voor scrollbaarheid
+        height=400
     )
     
     # Export knop
